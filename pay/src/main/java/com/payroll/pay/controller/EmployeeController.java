@@ -1,11 +1,13 @@
 package com.payroll.pay.controller;
 
+import com.payroll.pay.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.payroll.pay.entity.Employee;
 import com.payroll.pay.repository.EmployeeRepository;
+import com.payroll.pay.dto.EmployeeDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +15,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/employeepayrollservice")
 public class EmployeeController {
+    @Autowired
+    private EmployeeService employeeService;
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -64,4 +68,12 @@ public class EmployeeController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+    // POST - Create a new employee using DTO
+    @PostMapping("/createDTO")
+    public ResponseEntity<Employee> createEmployeeDTO(@RequestBody EmployeeDTO employeeDTO) {
+        Employee savedEmployee = employeeService.createEmployee(employeeDTO);
+        return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
+    }
+
+
 }
