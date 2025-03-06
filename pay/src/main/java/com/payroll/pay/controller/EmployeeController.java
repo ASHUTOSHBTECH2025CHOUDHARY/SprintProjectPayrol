@@ -74,6 +74,36 @@ public class EmployeeController {
         Employee savedEmployee = employeeService.createEmployee(employeeDTO);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
+    // PUT - Update an existing employee using DTO
+    @PutMapping("/updateDTO/{id}")
+    public ResponseEntity<Employee> updateEmployeeDTO(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
+        Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employeeDTO);
+        return updatedEmployee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 
+
+    // GET - Retrieve all employees but return DTO list
+    @GetMapping("/getAllDTO")
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployeesDTO() {
+        List<EmployeeDTO> employees = employeeService.getAllEmployeesDTO();
+        return new ResponseEntity<>(employees, HttpStatus.OK);
+    }
+
+
+    // GET - Retrieve a single employee by ID but return as DTO
+    @GetMapping("/getDTO/{id}")
+    public ResponseEntity<EmployeeDTO> getEmployeeDTOById(@PathVariable Long id) {
+        Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeDTOById(id);
+        return employeeDTO.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+    //Delete Employee by DTO
+    @DeleteMapping("/deleteDTO/{id}")
+    public ResponseEntity<EmployeeDTO> deleteEmployeeDTO(@PathVariable Long id) {
+        Optional<EmployeeDTO> deletedEmployee = employeeService.deleteEmployeeDTO(id);
+        return deletedEmployee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 
 }
