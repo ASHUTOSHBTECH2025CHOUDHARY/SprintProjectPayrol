@@ -9,9 +9,12 @@ import com.payroll.pay.entity.Employee;
 import com.payroll.pay.repository.EmployeeRepository;
 import com.payroll.pay.dto.EmployeeDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/employeepayrollservice")
 public class EmployeeController {
@@ -20,22 +23,18 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeRepository employeeRepository;
-
-    // POST - Create a new employee
     @PostMapping("/create")
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
         Employee savedEmployee = employeeRepository.save(employee);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
 
-    // GET - Retrieve all employees
     @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
 
-    // GET - Retrieve single employee by ID
     @GetMapping("/get/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
         Optional<Employee> employee = employeeRepository.findById(id);
@@ -43,7 +42,6 @@ public class EmployeeController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    // PUT - Update an existing employee
     @PutMapping("/update/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id,
                                                    @RequestBody Employee employeeDetails) {
@@ -58,7 +56,6 @@ public class EmployeeController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // DELETE - Delete an employee
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         Optional<Employee> employee = employeeRepository.findById(id);
@@ -68,13 +65,13 @@ public class EmployeeController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-    // POST - Create a new employee using DTO
+
     @PostMapping("/createDTO")
     public ResponseEntity<Employee> createEmployeeDTO(@RequestBody EmployeeDTO employeeDTO) {
         Employee savedEmployee = employeeService.createEmployee(employeeDTO);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
-    // PUT - Update an existing employee using DTO
+
     @PutMapping("/updateDTO/{id}")
     public ResponseEntity<Employee> updateEmployeeDTO(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
         Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employeeDTO);
@@ -83,7 +80,6 @@ public class EmployeeController {
     }
 
 
-    // GET - Retrieve all employees but return DTO list
     @GetMapping("/getAllDTO")
     public ResponseEntity<List<EmployeeDTO>> getAllEmployeesDTO() {
         List<EmployeeDTO> employees = employeeService.getAllEmployeesDTO();
@@ -91,19 +87,31 @@ public class EmployeeController {
     }
 
 
-    // GET - Retrieve a single employee by ID but return as DTO
+
     @GetMapping("/getDTO/{id}")
     public ResponseEntity<EmployeeDTO> getEmployeeDTOById(@PathVariable Long id) {
+        log.info("Fetching employee DTO with ID: {}", id);
         Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeDTOById(id);
-        return employeeDTO.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        if (employeeDTO.isPresent()) {
+            log.info("Successfully fetched employee DTO with ID: {}", id);
+            return new ResponseEntity<>(employeeDTO.get(), HttpStatus.OK);
+        } else {
+            log.warn("Employee DTO with ID {} not found", id);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
-    //Delete Employee by DTO
+
     @DeleteMapping("/deleteDTO/{id}")
     public ResponseEntity<EmployeeDTO> deleteEmployeeDTO(@PathVariable Long id) {
+        log.info("Deleting employee DTO with ID: {}", id);
         Optional<EmployeeDTO> deletedEmployee = employeeService.deleteEmployeeDTO(id);
-        return deletedEmployee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        if (deletedEmployee.isPresent()) {
+            log.info("Successfully deleted employee DTO with ID: {}", id);
+            return new ResponseEntity<>(deletedEmployee.get(), HttpStatus.OK);
+        } else {
+            log.warn("Employee DTO with ID {} not found for deletion", id);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 }
