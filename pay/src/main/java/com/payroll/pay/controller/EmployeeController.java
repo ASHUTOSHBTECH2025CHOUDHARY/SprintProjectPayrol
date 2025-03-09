@@ -76,9 +76,8 @@ public class EmployeeController {
 
     @PutMapping("/updateDTO/{id}")
     public ResponseEntity<Employee> updateEmployeeDTO(@PathVariable Long id, @Valid @RequestBody EmployeeDTO employeeDTO) {
-        Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employeeDTO);
-        return updatedEmployee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Employee updatedEmployee = employeeService.updateEmployee(id, employeeDTO);
+        return new ResponseEntity<>(updatedEmployee, HttpStatus.OK);
     }
 
     @GetMapping("/getAllDTO")
@@ -90,26 +89,16 @@ public class EmployeeController {
     @GetMapping("/getDTO/{id}")
     public ResponseEntity<EmployeeDTO> getEmployeeDTOById(@PathVariable Long id) {
         log.info("Fetching employee DTO with ID: {}", id);
-        Optional<EmployeeDTO> employeeDTO = employeeService.getEmployeeDTOById(id);
-        if (employeeDTO.isPresent()) {
-            log.info("Successfully fetched employee DTO with ID: {}", id);
-            return new ResponseEntity<>(employeeDTO.get(), HttpStatus.OK);
-        } else {
-            log.warn("Employee DTO with ID {} not found", id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        EmployeeDTO employeeDTO = employeeService.getEmployeeDTOById(id);
+        log.info("Successfully fetched employee DTO with ID: {}", id);
+        return new ResponseEntity<>(employeeDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("/deleteDTO/{id}")
     public ResponseEntity<EmployeeDTO> deleteEmployeeDTO(@PathVariable Long id) {
         log.info("Deleting employee DTO with ID: {}", id);
-        Optional<EmployeeDTO> deletedEmployee = employeeService.deleteEmployeeDTO(id);
-        if (deletedEmployee.isPresent()) {
-            log.info("Successfully deleted employee DTO with ID: {}", id);
-            return new ResponseEntity<>(deletedEmployee.get(), HttpStatus.OK);
-        } else {
-            log.warn("Employee DTO with ID {} not found for deletion", id);
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        EmployeeDTO deletedEmployee = employeeService.deleteEmployeeDTO(id);
+        log.info("Successfully deleted employee DTO with ID: {}", id);
+        return new ResponseEntity<>(deletedEmployee, HttpStatus.OK);
     }
-}   
+}

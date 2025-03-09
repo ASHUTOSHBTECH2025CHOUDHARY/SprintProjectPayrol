@@ -2,6 +2,7 @@ package com.payroll.pay.service;
 
 import com.payroll.pay.dto.EmployeeDTO;
 import com.payroll.pay.entity.Employee;
+import com.payroll.pay.exception.EmployeeNotFoundException;
 import com.payroll.pay.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,30 +32,30 @@ public class EmployeeService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<EmployeeDTO> getEmployeeDTOById(Long id) {
+    public EmployeeDTO getEmployeeDTOById(Long id) {
         log.info("Fetching employee DTO with ID: {}", id);
-        return employeeRepository.findById(id)
-                .map(emp -> new EmployeeDTO(emp.getName(), emp.getSalary()));
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found"));
+        return new EmployeeDTO(employee.getName(), employee.getSalary());
     }
 
-    public Optional<Employee> updateEmployee(Long id, EmployeeDTO employeeDTO) {
+    public Employee updateEmployee(Long id, EmployeeDTO employeeDTO) {
         log.info("Updating employee with ID: {}", id);
-        return employeeRepository.findById(id).map(existingEmployee -> {
-            existingEmployee.setName(employeeDTO.getName());
-            existingEmployee.setSalary(employeeDTO.getSalary());
-            Employee savedEmployee = employeeRepository.save(existingEmployee);
-            log.info("Employee with ID {} updated successfully", id);
-            return savedEmployee;
-        });
+        Employee existingEmployee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found"));
+        existingEmployee.setName(employeeDTO.getName());
+        existingEmployee.setSalary(employeeDTO.getSalary());
+        Employee savedEmployee = employeeRepository.save(existingEmployee);
+        log.info("Employee with ID {} updated successfully", id);
+        return savedEmployee;
     }
 
-    public Optional<EmployeeDTO> deleteEmployeeDTO(Long id) {
+    public EmployeeDTO deleteEmployeeDTO(Long id) {
         log.info("Deleting employee DTO with ID: {}", id);
-        Optional<Employee> employee = employeeRepository.findById(id);
-        employee.ifPresent(emp -> {
-            employeeRepository.delete(emp);
-            log.info("Employee with ID {} deleted successfully", id);
-        });
-        return employee.map(emp -> new EmployeeDTO(emp.getName(), emp.getSalary()));
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException("Employee with ID " + id + " not found"));
+        employeeRepository.delete(employee);
+        log.info("Employee with ID {} deleted successfully", id);
+        return new EmployeeDTO(employee.getName(), employee.getSalary());
     }
 }
