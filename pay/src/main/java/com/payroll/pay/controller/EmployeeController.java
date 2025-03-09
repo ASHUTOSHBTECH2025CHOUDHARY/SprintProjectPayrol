@@ -10,6 +10,7 @@ import com.payroll.pay.repository.EmployeeRepository;
 import com.payroll.pay.dto.EmployeeDTO;
 
 import lombok.extern.slf4j.Slf4j;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ public class EmployeeController {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
     @PostMapping("/create")
     public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
         Employee savedEmployee = employeeRepository.save(employee);
@@ -67,26 +69,23 @@ public class EmployeeController {
     }
 
     @PostMapping("/createDTO")
-    public ResponseEntity<Employee> createEmployeeDTO(@RequestBody EmployeeDTO employeeDTO) {
+    public ResponseEntity<Employee> createEmployeeDTO(@Valid @RequestBody EmployeeDTO employeeDTO) {
         Employee savedEmployee = employeeService.createEmployee(employeeDTO);
         return new ResponseEntity<>(savedEmployee, HttpStatus.CREATED);
     }
 
     @PutMapping("/updateDTO/{id}")
-    public ResponseEntity<Employee> updateEmployeeDTO(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
+    public ResponseEntity<Employee> updateEmployeeDTO(@PathVariable Long id, @Valid @RequestBody EmployeeDTO employeeDTO) {
         Optional<Employee> updatedEmployee = employeeService.updateEmployee(id, employeeDTO);
         return updatedEmployee.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-
 
     @GetMapping("/getAllDTO")
     public ResponseEntity<List<EmployeeDTO>> getAllEmployeesDTO() {
         List<EmployeeDTO> employees = employeeService.getAllEmployeesDTO();
         return new ResponseEntity<>(employees, HttpStatus.OK);
     }
-
-
 
     @GetMapping("/getDTO/{id}")
     public ResponseEntity<EmployeeDTO> getEmployeeDTOById(@PathVariable Long id) {
@@ -113,5 +112,4 @@ public class EmployeeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
-}
+}   
